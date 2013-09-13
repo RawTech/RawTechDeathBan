@@ -6,7 +6,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public class PlayerInstance extends PlayerInstanceBase {
-	private Boolean vulnerable = Boolean.valueOf(false);
+	private Boolean vulnerable =false;
 	private int combatTime = 0;
 
 	public PlayerInstance(Player player) {
@@ -35,9 +35,9 @@ public class PlayerInstance extends PlayerInstanceBase {
 
 	public void remove() {
 		long timeOnline = System.currentTimeMillis() / 1000L - getLoginTime();
-		RawTechDeathBan.DatabaseAPI.removePlayer(getPlayer().getName(), Long.valueOf(timeOnline));
+		RawTechDeathBan.DatabaseAPI.removePlayer(getPlayer().getName(), timeOnline);
 		try {
-			finalize();
+			this.finalize();
 		} catch (Throwable e) {
 		}
 	}

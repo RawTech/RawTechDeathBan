@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Map;
 
 public class ChatHandler {
-	public static Boolean chatMute = Boolean.valueOf(false);
-	private static Map<String, String> chatprefix = new HashMap();
-	private static Map<String, String> chatsuffix = new HashMap();
+	public static Boolean chatMute = false;
+	private static Map<String, String> chatprefix = new HashMap<String, String>();
+	private static Map<String, String> chatsuffix = new HashMap<String, String>();
 
 	public static void init() {
 		chatprefix.put("default", ChatColor.GRAY + "[" + ChatColor.WHITE);
@@ -33,21 +33,21 @@ public class ChatHandler {
 		PlayerInstance pi = RawTechDeathBan.getPlayer(player.getName());
 
 		if (pi.getRank() == 3)
-			return (String) chatprefix.get("admin") + player.getDisplayName() + (String) chatsuffix.get("admin");
+			return chatprefix.get("admin") + player.getDisplayName() + chatsuffix.get("admin");
 		if (pi.getRank() == 2)
-			return (String) chatprefix.get("mod") + player.getDisplayName() + (String) chatsuffix.get("mod");
+			return chatprefix.get("mod") + player.getDisplayName() + chatsuffix.get("mod");
 		if (pi.getRank() == 1)
-			return (String) chatprefix.get("chatmod") + player.getDisplayName() + (String) chatsuffix.get("chatmod");
-		if (pi.isGold().booleanValue()) {
-			return (String) chatprefix.get("gold") + player.getDisplayName() + (String) chatsuffix.get("gold");
+			return chatprefix.get("chatmod") + player.getDisplayName() + chatsuffix.get("chatmod");
+		if (pi.isGold()) {
+			return chatprefix.get("gold") + player.getDisplayName() + chatsuffix.get("gold");
 		}
 
-		return (String) chatprefix.get("default") + player.getDisplayName() + (String) chatsuffix.get("default");
+		return chatprefix.get("default") + player.getDisplayName() + chatsuffix.get("default");
 	}
 
 	public static void sendChatMessage(Player player, String message) {
 		PlayerInstance pi = RawTechDeathBan.getPlayer(player.getName());
-		if (!pi.canChat().booleanValue()) {
+		if (!pi.canChat()) {
 			player.sendMessage("Your chat slowmode is: " + ChatColor.RED + pi.getSlowMode() + ChatColor.WHITE + " seconds.");
 			player.sendMessage("You can change this in your settings: " + ChatColor.RED + "http://rawtechnet.co.uk/settings");
 			return;
@@ -61,7 +61,7 @@ public class ChatHandler {
 
 			return;
 		}
-		if (chatMute.booleanValue()) {
+		if (chatMute) {
 			return;
 		}
 
@@ -131,7 +131,7 @@ public class ChatHandler {
 	}
 
 	private static String closeSentences(String message) {
-		List exemptions = Arrays.asList(new String[]{".", "!", "?", "(", ")", "[", "]", "{", "}", "<", ">", "D", "3", "P", "\\", "/", ";", ":", ",", "-", "_", "d", "p", "'"});
+		List exemptions = Arrays.asList(".", "!", "?", "(", ")", "[", "]", "{", "}", "<", ">", "D", "3", "P", "\\", "/", ";", ":", ",", "-", "_", "d", "p", "'");
 		String lastChar = Character.toString(message.charAt(message.length() - 1));
 		boolean exempt = false;
 		if (exemptions.contains(lastChar)) {
@@ -281,7 +281,7 @@ public class ChatHandler {
 				if (s.endsWith(" ")) {
 					s = s.substring(0, s.length() - 1);
 				}
-				if (!isQuestion(s).booleanValue())
+				if (!isQuestion(s))
 					STR = STR + s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase() + ".";
 				else
 					STR = STR + s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase() + "?";
@@ -322,7 +322,7 @@ public class ChatHandler {
 	}
 
 	public static Boolean isQuestion(String string) {
-		Boolean b = Boolean.valueOf(false);
+		Boolean b = false;
 		String s = string;
 		if (s.contains(",")) {
 			s = s.substring(string.indexOf(", ") + 2);
@@ -336,22 +336,22 @@ public class ChatHandler {
 		s = s.toLowerCase();
 		s = s.replace(" ", "");
 		if (s.equals("what")) {
-			b = Boolean.valueOf(true);
+			b = true;
 		}
 		if (s.equals("how")) {
-			b = Boolean.valueOf(true);
+			b = true;
 		}
 		if (s.equals("why")) {
-			b = Boolean.valueOf(true);
+			b = true;
 		}
 		if (s.equals("where")) {
-			b = Boolean.valueOf(true);
+			b = true;
 		}
 		if (s.equals("when")) {
-			b = Boolean.valueOf(true);
+			b = true;
 		}
 		if (s.equals("who")) {
-			b = Boolean.valueOf(true);
+			b = true;
 		}
 		return b;
 	}

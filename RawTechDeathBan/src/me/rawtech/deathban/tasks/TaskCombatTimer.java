@@ -27,7 +27,7 @@ public class TaskCombatTimer extends BukkitRunnable {
 		Iterator it = RawTechDeathBan.loginWait.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry entry = (Map.Entry) it.next();
-			if (((Integer) entry.getValue()).intValue() < (int) (System.currentTimeMillis() / 1000L)) {
+			if (((Integer) entry.getValue()) < (int) (System.currentTimeMillis() / 1000L)) {
 				RawTechDeathBan.loginWait.remove(entry.getKey());
 			}
 			it.remove();

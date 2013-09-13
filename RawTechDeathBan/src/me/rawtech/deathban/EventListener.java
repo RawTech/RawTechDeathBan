@@ -23,7 +23,6 @@ import org.kitteh.tag.PlayerReceiveNameTagEvent;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 public class EventListener
@@ -37,17 +36,17 @@ public class EventListener
 			return;
 		}
 
-		Boolean staff = Boolean.valueOf(false);
-		Boolean premium = Boolean.valueOf(false);
+		Boolean staff = false;
+		Boolean premium = false;
 
 		ResultSet r = RawTechDeathBan.DatabaseAPI.getUserRow(player.getName());
 		try {
 			while (r.next()) {
 				if (r.getInt("premium") == 1) {
-					premium = Boolean.valueOf(true);
+					premium = true;
 				}
 				if (r.getInt("rank") > 0)
-					staff = Boolean.valueOf(true);
+					staff = true;
 			}
 		} catch (SQLException e) {
 		}
@@ -94,11 +93,11 @@ public class EventListener
 			event.disallow(PlayerLoginEvent.Result.KICK_BANNED, ChatColor.RED + message + ".");
 		} else if (player.isBanned()) {
 			event.disallow(PlayerLoginEvent.Result.KICK_BANNED, ChatColor.RED + "You have been banned from this server.");
-		} else if ((Bukkit.getOnlinePlayers().length >= 30) && (!staff.booleanValue()) && (!premium.booleanValue())) {
+		} else if ((Bukkit.getOnlinePlayers().length >= 30) && !staff && !premium) {
 			event.disallow(PlayerLoginEvent.Result.KICK_OTHER, ChatColor.WHITE + "The server is full. " + ChatColor.GOLD + "Get a reserved slot by going gold! \n http://rawt.co.uk/gold");
 		}
 
-		RawTechDeathBan.loginWait.put(player.getName(), Integer.valueOf((int) (System.currentTimeMillis() / 1000L) + 60));
+		RawTechDeathBan.loginWait.put(player.getName(), (int) (System.currentTimeMillis() / 1000L) + 60);
 	}
 
 	@EventHandler
@@ -119,22 +118,22 @@ public class EventListener
 		event.setJoinMessage(null);
 
 		if (!p.hasPlayedBefore()) {
-			Boolean hasSpawned = Boolean.valueOf(false);
-			while (!hasSpawned.booleanValue()) {
+			Boolean hasSpawned = false;
+			while (!hasSpawned) {
 				Location spawn = genNewSpawnpoint(p.getWorld());
-				Boolean safeSpawn = Boolean.valueOf(true);
+				Boolean safeSpawn = true;
 				for (Player other : Bukkit.getOnlinePlayers()) {
 					if ((!other.getName().equalsIgnoreCase(p.getName())) && (other.getLocation().distance(p.getLocation()) <= 200.0D)) {
-						safeSpawn = Boolean.valueOf(false);
+						safeSpawn = false;
 					}
 					int type = p.getWorld().getBlockTypeIdAt(spawn);
 					if ((type == 9) || (type == 10) || (type == 11) || (type == 8)) {
-						safeSpawn = Boolean.valueOf(false);
+						safeSpawn = false;
 					}
 				}
-				if (safeSpawn.booleanValue()) {
+				if (safeSpawn) {
 					p.teleport(spawn);
-					hasSpawned = Boolean.valueOf(true);
+					hasSpawned = true;
 				}
 			}
 			givePlayerStartBook(p);
@@ -147,7 +146,7 @@ public class EventListener
 		new TaskSendMessage(p, "You have 2 seconds of invulnerability.").runTaskLater(RawTechDeathBan.plugin, 160L);
 		new TaskSendMessage(p, "You have 1 second of invulnerability.").runTaskLater(RawTechDeathBan.plugin, 180L);
 		new TaskSendMessage(p, "You are now vulnerable to damage!").runTaskLater(RawTechDeathBan.plugin, 200L);
-		new TaskSetVulnerable(pi, Boolean.valueOf(true)).runTaskLater(RawTechDeathBan.plugin, 200L);
+		new TaskSetVulnerable(pi, true).runTaskLater(RawTechDeathBan.plugin, 200L);
 	}
 
 	@EventHandler
@@ -161,18 +160,16 @@ public class EventListener
 
 		meta.setTitle("Game information");
 		meta.setAuthor("RawTech");
-		List pages = new ArrayList();
+		ArrayList<String> pages = new ArrayList<String>();
+
 		pages.add("Season 1\nWelcome to the Hardcore Deathban server! As the name implies, when you die you will be banned from this server for 5 days (3 days for Gold).");
-
 		pages.add("Each month will be a new season, meaning a new map and all profiles reset.\nThis season will end on Friday 6th September.");
-
 		pages.add("Season 1 Rules:\n- No enderpearl damage\n- Nether and end disabled\n- No teaming\n- Greifing is allowed\n- Stealing is allowed\n- No natural health regen\n- Can't see nametags");
-
 		pages.add("You are invulnerable for 10 seconds after you login. (you can still die from fire, lava, suffocation & drowning)\nYou can get more lives from the store! rawt.co.uk/store");
 
 		meta.setPages(pages);
 		book.setItemMeta(meta);
-		player.getInventory().addItem(new ItemStack[]{book});
+		player.getInventory().addItem(book);
 	}
 
 	private Location genNewSpawnpoint(World world) {
@@ -211,7 +208,7 @@ public class EventListener
 
 		int expire = 432000;
 
-		if (RawTechDeathBan.getPlayer(p).isGold().booleanValue()) {
+		if (RawTechDeathBan.getPlayer(p).isGold()) {
 			expire = 259200;
 		}
 
@@ -234,7 +231,7 @@ public class EventListener
 	public void onPlayerRespawn(PlayerRespawnEvent e) {
 		Player p = e.getPlayer();
 		String duration = "5 days";
-		if (RawTechDeathBan.getPlayer(p).isGold().booleanValue()) {
+		if (RawTechDeathBan.getPlayer(p).isGold()) {
 			duration = "3 days";
 		}
 		p.kickPlayer("You have been death banned! It will expire in " + duration + ".");
@@ -250,7 +247,7 @@ public class EventListener
 			pi.setCombatTime(0);
 			int expire = 432000;
 
-			if (RawTechDeathBan.getPlayer(p).isGold().booleanValue()) {
+			if (RawTechDeathBan.getPlayer(p).isGold()) {
 				expire = 259200;
 			}
 
@@ -273,7 +270,7 @@ public class EventListener
 			pi.setCombatTime(0);
 			int expire = 432000;
 
-			if (RawTechDeathBan.getPlayer(p).isGold().booleanValue()) {
+			if (RawTechDeathBan.getPlayer(p).isGold()) {
 				expire = 259200;
 			}
 

@@ -17,25 +17,25 @@ import java.util.Map;
 public class RawTechDeathBan extends JavaPlugin {
 	public static Plugin plugin;
 	public static RawTechNetDB DatabaseAPI;
-	public static Map<String, PlayerInstance> players = new HashMap();
-	public static Map<String, Integer> loginWait = new HashMap();
+	public static Map<String, PlayerInstance> players = new HashMap<String, PlayerInstance>();
+	public static Map<String, Integer> loginWait = new HashMap<String, Integer>();
 	private BukkitTask tipDeployerTask;
 	private BukkitTask combatTimeTask;
 
 	public static ArrayList<PlayerInstance> getAllPlayers() {
-		ArrayList groupedplayers = new ArrayList();
-		for (Map.Entry pi : players.entrySet()) {
-			groupedplayers.add(pi.getValue());
+		ArrayList<PlayerInstance> groupedplayers = new ArrayList<PlayerInstance>();
+		for(PlayerInstance pi : players.values()) {
+			groupedplayers.add(pi);
 		}
 		return groupedplayers;
 	}
 
 	public static PlayerInstance getPlayer(Player player) {
-		return (PlayerInstance) players.get(player.getName());
+		return players.get(player.getName());
 	}
 
 	public static PlayerInstance getPlayer(String player) {
-		return (PlayerInstance) players.get(player);
+		return players.get(player);
 	}
 
 	public void onEnable() {
@@ -45,10 +45,12 @@ public class RawTechDeathBan extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new EventListener(), this);
 		getServer().getPluginManager().registerEvents(new VulnerabilityListener(), this);
 
-		ArrayList tips = new ArrayList();
+		ArrayList<String> tips = new ArrayList<String>();
+
 		tips.add("Other players cannot see your name tag.");
 		tips.add("Extra lives can be bought from the store: " + ChatColor.DARK_PURPLE + "rawt.co.uk/store");
 		tips.add("If you die, you'll be banned from this server for 5 days. (3 days for gold)");
+
 		this.tipDeployerTask = new TaskTipDeployer(tips).runTaskTimer(plugin, 1200L, 6000L);
 		this.combatTimeTask = new TaskCombatTimer().runTaskTimer(plugin, 20L, 20L);
 	}
