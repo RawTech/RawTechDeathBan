@@ -118,22 +118,37 @@ public class EventListener
 		event.setJoinMessage(null);
 
 		if (!p.hasPlayedBefore()) {
-			Boolean hasSpawned = false;
-			while (!hasSpawned) {
+
+			ArrayList<Material> badBlocks = new ArrayList<Material>();
+			badBlocks.add(Material.STATIONARY_WATER);
+			badBlocks.add(Material.WATER);
+			badBlocks.add(Material.STATIONARY_LAVA);
+			badBlocks.add(Material.LAVA);
+
+			while (true) {
 				Location spawn = genNewSpawnpoint(p.getWorld());
 				Boolean safeSpawn = true;
-				for (Player other : Bukkit.getOnlinePlayers()) {
-					if ((!other.getName().equalsIgnoreCase(p.getName())) && (other.getLocation().distance(p.getLocation()) <= 200.0D)) {
-						safeSpawn = false;
-					}
-					int type = p.getWorld().getBlockTypeIdAt(spawn);
-					if ((type == 9) || (type == 10) || (type == 11) || (type == 8)) {
+
+				for (Material type : badBlocks) {
+					if (safeSpawn && checkForBlock(spawn, type)) {
 						safeSpawn = false;
 					}
 				}
+
 				if (safeSpawn) {
+					for (Player other : Bukkit.getOnlinePlayers()) {
+						if ((!other.getName().equalsIgnoreCase(p.getName())) && (other.getLocation().distance(p.getLocation()) <= 200.0D)) {
+							safeSpawn = false;
+						}
+					}
+				}
+
+				if (safeSpawn) {
+					spawn.getBlock().setType(Material.AIR);
+					spawn.clone().add(0,1,0).getBlock().setType(Material.AIR);
+
 					p.teleport(spawn);
-					hasSpawned = true;
+					break;
 				}
 			}
 			givePlayerStartBook(p);
@@ -149,6 +164,19 @@ public class EventListener
 		new TaskSetVulnerable(pi, true).runTaskLater(RawTechDeathBan.plugin, 200L);
 	}
 
+	private Boolean checkForBlock(Location loc, Material type)
+	{
+		if (loc.getBlock().getType().equals(type)) {
+			return true;
+		} else if (loc.clone().add(0,1,0).getBlock().getType().equals(type)) {
+			return true;
+		} else if (loc.clone().add(0,-1,0).getBlock().getType().equals(type)) {
+			return true;
+		}
+
+		return false;
+	}
+
 	@EventHandler
 	public void onNameTag(PlayerReceiveNameTagEvent event) {
 		event.setTag(ChatColor.DARK_GRAY + ".");
@@ -158,13 +186,24 @@ public class EventListener
 		ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
 		BookMeta meta = (BookMeta) book.getItemMeta();
 
-		meta.setTitle("Game information");
+		meta.setTitle("Season 2 Info");
 		meta.setAuthor("RawTech");
 		ArrayList<String> pages = new ArrayList<String>();
 
-		pages.add("Season 1\nWelcome to the Hardcore Deathban server! As the name implies, when you die you will be banned from this server for 5 days (3 days for Gold).");
-		pages.add("Each month will be a new season, meaning a new map and all profiles reset.\nThis season will end on Friday 6th September.");
-		pages.add("Season 1 Rules:\n- No enderpearl damage\n- Nether and end disabled\n- No teaming\n- Greifing is allowed\n- Stealing is allowed\n- No natural health regen\n- Can't see nametags");
+		pages.add("Season 2\nWelcome to the Hardcore Deathban server!" +
+				"\n\nAs the name implies, when you die you will be banned from this server for 5 days (3 days for Gold).");
+		pages.add("Every 2nd month will be a new season, meaning a new map and all profiles reset." +
+				"\n\nThis season will end on Saturday 2nd November.");
+		pages.add("Season 2 Features:" +
+				"\n- No pearl damage" +
+				"\n- Nether and end disabled" +
+				"\n- No teaming" +
+				"\n- Greifing is allowed" +
+				"\n- Stealing is allowed" +
+				"\n- No health regen" +
+				"\n- Can't see nametags" +
+				"\n- Custom terrain" +
+				"\n- Reduced ores");
 		pages.add("You are invulnerable for 10 seconds after you login. (you can still die from fire, lava, suffocation & drowning)\nYou can get more lives from the store! rawt.co.uk/store");
 
 		meta.setPages(pages);
@@ -174,8 +213,9 @@ public class EventListener
 
 	private Location genNewSpawnpoint(World world) {
 		Random rand = new Random();
-		Location spawn = new Location(world, rand.nextInt(3000) - 1500, 0.0D, rand.nextInt(3000) - 1500);
+		Location spawn = new Location(world, rand.nextInt(6000) - 3000, 0.0D, rand.nextInt(6000) - 3000);
 		spawn.setY(world.getHighestBlockYAt(spawn));
+		spawn.add(0.5d,0d,0.5d);
 		return spawn;
 	}
 
